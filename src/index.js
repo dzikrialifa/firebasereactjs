@@ -1,17 +1,35 @@
-import React from 'react';
+import React,{useState} from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import { Switch, BrowserRouter as Router, Route } from "react-router-dom";
+import routes from './routes.js';
+import Header from "./Header";
+import './style.css';
+import * as firebase from 'firebase';
+import firebaseConfig from './firebase.config';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+firebase.initializeApp(firebaseConfig);
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+export const AuthContext = React.createContext(null);
+
+function App(){
+  const [isLoggedIn, setLoggedIn] = useState(false);
+
+  return(
+    <AuthContext.Provider value={{ isLoggedIn, setLoggedIn }}>
+      Is Logged in ? {JSON.stringify(isLoggedIn)}
+      <div className="App">
+        <Router>
+          <Header/>
+          <Switch>
+            {routes.map(route => (
+              <Route key={route.path} path={route.path} exact={route.exact} component={route.main} 
+              />
+            ))}
+          </Switch>
+        </Router>
+      </div>
+    </AuthContext.Provider>
+  )
+}
+const rootElement = document.getElementById("root");
+ReactDOM.render(<App/>, rootElement);
